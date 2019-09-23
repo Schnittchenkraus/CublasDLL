@@ -5819,6 +5819,94 @@ namespace ManagedCuda.CudaBlas
         throw new CudaBlasException(this._status);
     }
 
+    //FFa einfach reingepfuscht
+
+    /// <summary>
+    /// This function performs the !tensor! matrix-matrix multiplication C = alpha * Op(A) * Op(B) + beta * C where
+    /// alpha and beta are scalars, and A, B and C are matrices stored in column-major format with dimensions
+    /// op(A) m*k, op(B) k*n and C m*n, respectively.
+    /// </summary>
+    /// <param name="transa">operation op(A) that is non- or (conj.) transpose.</param>
+    /// <param name="transb">operation op(B) that is non- or (conj.) transpose.</param>
+    /// <param name="m">number of rows of matrix op(A) and C.</param>
+    /// <param name="n">number of columns of matrix op(B) and C.</param>
+    /// <param name="k">number of columns of op(A) and rows of op(B).</param>
+    /// <param name="alpha">scalar used for multiplication.</param>
+    /// <param name="A">array of dimensions lda * k.</param>
+    /// <param name="Atype">enumerant specifying the datatype of matrix A.</param>
+    /// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+    /// <param name="B">array of dimensions ldb * n.</param>
+    /// <param name="Btype">enumerant specifying the datatype of matrix B.</param>
+    /// <param name="ldb">leading dimension of two-dimensional array used to store matrix B.</param>
+    /// <param name="beta">scalar used for multiplication.</param>
+    /// <param name="C">array of dimensions ldb * n.</param>
+    /// <param name="Ctype">enumerant specifying the datatype of matrix C.</param>
+    /// <param name="ldc">leading dimension of two-dimensional array used to store matrix C.</param>
+    /// <param name="computeType"></param>
+    /// <param name="algo"></param>
+    public void GemmFFa(
+    Operation transa,
+    Operation transb,
+    int m,
+    int n,
+    int k, 
+    CudaDeviceVariable<half> alpha,
+    CudaDeviceVariable<half> A,
+    cudaDataType Atype, 
+    int lda,
+    CudaDeviceVariable<half> B,
+    cudaDataType Btype,
+    int ldb,
+    CudaDeviceVariable<half> beta,
+    CudaDeviceVariable<half> C,
+    cudaDataType Ctype, 
+    int ldc, //Bis hier richtig
+    cudaDataType computeType,
+    GemmAlgo algo
+    )
+    {
+        this._status = CudaBlasNativeMethods.cublasGemmEx(this._blasHandle, transa, transb, m, n, k, alpha.DevicePointer, A.DevicePointer, Atype, lda, B.DevicePointer, Btype, ldb, beta.DevicePointer, C.DevicePointer, Ctype, ldc, computeType, algo);
+        if (this._status != CublasStatus.Success)
+            throw new CudaBlasException(this._status);
+    }
+
+    /// <summary>
+    /// This function performs the matrix-matrix multiplication C = alpha * Op(A) * Op(B) + beta * C where
+    /// alpha and beta are scalars, and A, B and C are matrices stored in column-major format with dimensions
+    /// op(A) m*k, op(B) k*n and C m*n, respectively.
+    /// </summary>
+    /// <param name="transa">operation op(A) that is non- or (conj.) transpose.</param>
+    /// <param name="transb">operation op(B) that is non- or (conj.) transpose.</param>
+    /// <param name="m">number of rows of matrix op(A) and C.</param>
+    /// <param name="n">number of columns of matrix op(B) and C.</param>
+    /// <param name="k">number of columns of op(A) and rows of op(B).</param>
+    /// <param name="alpha">scalar used for multiplication.</param>
+    /// <param name="A">array of dimensions lda * k.</param>
+    /// <param name="lda">leading dimension of two-dimensional array used to store matrix A.</param>
+    /// <param name="B">array of dimensions ldb * n.</param>
+    /// <param name="ldb">leading dimension of two-dimensional array used to store matrix B.</param>
+    /// <param name="beta">scalar used for multiplication.</param>
+    /// <param name="C">array of dimensions ldb * n.</param>
+    /// <param name="ldc">leading dimension of two-dimensional array used to store matrix C.</param>
+    public void Gemm(
+      Operation transa,
+      Operation transb,
+      int m,
+      int n,
+      int k,
+      double alpha,
+      CudaDeviceVariable<double> A,
+      int lda,
+      CudaDeviceVariable<double> B,
+      int ldb,
+      double beta,
+      CudaDeviceVariable<double> C,
+      int ldc)
+    {
+      this._status = CudaBlasNativeMethods.cublasDgemm_v2(this._blasHandle, transa, transb, m, n, k, ref alpha, A.DevicePointer, lda, B.DevicePointer, ldb, ref beta, C.DevicePointer, ldc);
+      if (this._status != CublasStatus.Success)
+        throw new CudaBlasException(this._status);
+    }
     /// <summary>
     /// This function performs the matrix-matrix multiplication C = alpha * Op(A) * Op(B) + beta * C where
     /// alpha and beta are scalars, and A, B and C are matrices stored in column-major format with dimensions
